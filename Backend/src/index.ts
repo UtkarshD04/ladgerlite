@@ -25,12 +25,21 @@ app.use(express.urlencoded({extended : true}));
 app.use(passport.initialize())
 
 
+const allowedOrigins = Env.FRONTEND_ORIGIN
+  ? Env.FRONTEND_ORIGIN.split(",").map((o) => o.trim())
+  : [];
+
 app.use(
-    cors
-    ({
-        origin:Env.FRONTEND_ORIGIN,
-        credentials : true,
-    })
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+  })
 );
 
 app.get("/" , asyncHandler(async( req: Request , res: Response, next:
